@@ -1,0 +1,90 @@
+enum enc_mode {
+    _enc_single = 0,
+    _enc_speed,
+    _enc_skip,
+    _enc_done
+};
+
+enum enc_mode encoder_mode = 0;
+
+bool encoder_in_use = false;
+uint16_t encoder_pulse_timer = 0;
+
+void encoder_update_single(uint8_t index, bool clockwise) {
+  if (clockwise) {
+    tap_code(KC_R);
+  } else {
+    tap_code(KC_L);
+  }
+}
+
+void encoder_update_speed(uint8_t index, bool clockwise) {
+  if (encoder_in_use) {
+    if (clockwise) {
+      tap_code(KC_R);
+    } else {
+      tap_code(KC_L);
+    }
+    uint16_t elapsed = timer_elapsed(encoder_pulse_timer);
+    if (elapsed < 10) {
+      tap_code(KC_9);
+    } else if (elapsed < 20) {
+      tap_code(KC_8);
+    } else if (elapsed < 30) {
+      tap_code(KC_7);
+    } else if (elapsed < 40) {
+      tap_code(KC_6);
+    } else if (elapsed < 50) {
+      tap_code(KC_5);
+    } else if (elapsed < 60) {
+      tap_code(KC_4);
+    } else if (elapsed < 70) {
+      tap_code(KC_3);
+    } else if (elapsed < 80) {
+      tap_code(KC_2);
+    } else if (elapsed < 90) {
+      tap_code(KC_1);
+    } else {
+      tap_code(KC_0);
+    }
+    encoder_pulse_timer = timer_read();
+  } else {
+    encoder_pulse_timer = timer_read();
+    encoder_in_use = true;
+  }
+}
+
+#define SKIP_NUM 10
+
+uint8_t skip_count = SKIP_NUM / 2;
+void encoder_update_skip(uint8_t index, bool clockwise) {
+  if (clockwise) {
+    skip_count++;
+  } else {
+    skip_count--;
+  }
+  if (skip_count == 0) {
+    tap_code(KC_L);
+    skip_count += 9;
+  }
+  if (skip_count == 5) {
+    tap_code(KC_R);
+    skip_count -= 9;
+  }
+}
+
+void encoder_update_user(uint8_t index, bool clockwise) {
+  switch (encoder_mode) {
+    case _enc_single:
+      encoder_update_single(index, clockwise);
+      break;
+    case _enc_speed:
+      encoder_update_speed(index, clockwise);
+      break;
+    case _enc_skip:
+      encoder_update_skip(index, clockwise);
+      break;
+    default:
+      break;
+  }
+}
