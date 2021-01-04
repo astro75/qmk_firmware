@@ -2,6 +2,7 @@
 OLED_DRIVER_ENABLE = no
 
 # Builtin features
+#COMBO_ENABLE = yes
 CONSOLE_ENABLE = yes
 
 # Custom features

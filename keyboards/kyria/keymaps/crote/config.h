@@ -18,7 +18,7 @@
   // Encoder resolution defaults to 4, which means we get one event every
   // four pulses. This is useful to sync with encoder indents.
   // We use linear encoders, so use the lowest resolution possible.
-  #define ENCODER_RESOLUTION 2 // 1
+  #define ENCODER_RESOLUTION 1
 #endif
 
 #ifdef RGBLIGHT_ENABLE
@@ -26,8 +26,15 @@
   #define RGBLIGHT_HUE_STEP 8
   #define RGBLIGHT_SAT_STEP 8
   #define RGBLIGHT_VAL_STEP 8
-  #define RGBLIGHT_LIMIT_VAL 255
+  #define RGBLIGHT_LIMIT_VAL 127
 #endif
+
+// Using this prevents us from having to change the count in the header
+// every time we add a combo
+// See new docs in https://github.com/qmk/qmk_firmware/pull/8591
+#define COMBO_VARIABLE_LEN
+
+#define COMBO_TERM 50
 
 // If you are using an Elite C rev3 on the slave side, uncomment the lines below:
 #define SPLIT_USB_DETECT
@@ -45,4 +52,7 @@
 // so this greatly increases the scan frequency
 #define F_SCL 400000UL
 
-#define DEBUG_MATRIX_SCAN_RATE
+// COMPOSE docs: https://help.ubuntu.com/community/GtkComposeTable
+// Compose key, depends on OS settings
+// Note that composed keys do not support press & hold
+#define KC_COMP (KC_RCTRL)
