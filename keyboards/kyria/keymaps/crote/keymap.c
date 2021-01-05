@@ -30,27 +30,30 @@ enum layers {
     _CONF,
 };
 
-// U: User key, dynamic behaviour
-// M: Config mode
-// C: Composed keys
-//    Diacritic suffixes:
-//      A  Acute (')
-//      G  Grave (`)
-//      T  Trema (")
-//    Circumflex (^) is missing, because we only have three rows
-//      maybe something for combos?
 enum custom_keycodes {
+    // Unused, placeholder for the start value
     DUMMY = SAFE_RANGE,
+    // Mode-dependent keys
     U_ENC1,
     U_ENC2,
     U_BALL,
-    M_E1, // Encoder settings
+    // Mode configuration
+    /// Encoder
+    M_E1,
     M_E2,
     M_E3,
-    M_E4,
-    M_E5,
-    M_E6,
+    /// Ball
+    M_B1,
+    M_B2,
+    M_B3,
+    // Composed symbols
     C_EUR,
+    /// Common Dutch diacritics
+    ///   A  Acute (')
+    ///   G  Grave (`)
+    ///   T  Trema (")
+    /// Circumflex (^) is missing, because we only have three rows
+    ///   maybe something for combos?
     C_A_A,
     C_A_G,
     C_A_T,
@@ -131,27 +134,32 @@ void matrix_scan_user(void) {
   #endif
 }
 
+const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 // Legend:
 // ▲    Layer key
 // ▼    Transparent, uses layer below
+// ⥮    Mode-dependent key
+// ⇌    Modesetting key
 // ╳    Dead key, unused
-const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
+// ⇶    Composed key
+
+// Note that all layers are listed top-to-bottom!
 
 // Configuration
 // ,-----------------------------------------------.                                  ,-----------------------------------------------.
-// | Enc 1 | Enc 2 | Sat + | Hue + | Val + |       |                                  |       |       |       |       |       | PrScr |
+// | ⇌Enc 1|⇌Ball 1| Sat + | Hue + | Val + |       |                                  |       |       |       |       |       | PrScr |
 // |-------+-------+-------+-------+-------+-------|                                  |-------+-------+-------+-------+-------+-------|
-// | Enc 3 | Enc 4 | <Mode | On/Off| Mode> | EEPROM|                                  | EEPROM|       |       |       |       |  Ins  |
+// | ⇌Enc 2|⇌Ball 2| <Mode | On/Off| Mode> | EEPROM|                                  | EEPROM|       |       |       |       |  Ins  |
 // |-------+-------+-------+-------+-------+-------+---------------.  ,---------------+-------+-------+-------+-------+-------+-------|
-// | Enc 5 | Enc 6 | Sat - | Hue - | Val - | Reset |   ▼   |   ▼   |  |   ▼   |   ▼   | Reset |       |       |       |       |  Caps |
+// | ⇌Enc 3|⇌Ball 3| Sat - | Hue - | Val - | Reset |   ▼   |   ▼   |  |   ▼   |   ▼   | Reset |       |       |       |       |  Caps |
 // `-----------------------+-------+-------+-------+-------+-------|  |-------+-------+-------+-------+-------+-----------------------'
 //                         |       |       |       |       |       |  |       |       |       |       |       |
 //                         |   ▼   |   ▼   |   ▼   |   ▼   |   ▼   |  |   ▼   |   ▼   |   ▼   |   ▼   |   ▼   |
 //                         `---------------------------------------'  `---------------------------------------'
   [_CONF] = LAYOUT(
-    M_E1, M_E2,  RGB_SAI, RGB_HUI, RGB_VAI, _______,                                       _______, _______, _______, _______, _______, KC_PSCR,
-    M_E3, M_E4, RGB_RMOD, RGB_TOG, RGB_VAD, EEP_RST,                                       EEP_RST, _______, _______, _______, _______, KC_INS,
-    M_E5, M_E6,  RGB_SAD, RGB_HUD, RGB_MOD,   RESET, KC_TRNS, KC_TRNS,   KC_TRNS, KC_TRNS,   RESET, _______, _______, _______, _______, KC_CAPS,
+    M_E1, M_B1,  RGB_SAI, RGB_HUI, RGB_VAI, _______,                                       _______, _______, _______, _______, _______, KC_PSCR,
+    M_E2, M_B2, RGB_RMOD, RGB_TOG, RGB_VAD, EEP_RST,                                       EEP_RST, _______, _______, _______, _______, KC_INS,
+    M_E3, M_B3,  RGB_SAD, RGB_HUD, RGB_MOD,   RESET, KC_TRNS, KC_TRNS,   KC_TRNS, KC_TRNS,   RESET, _______, _______, _______, _______, KC_CAPS,
                           KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,   KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS
   ),
 
@@ -193,11 +201,11 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
 // Accents
 // ,-----------------------------------------------.                                  ,-----------------------------------------------.
-// |   ▼   |  F1   |  F2   |  F3   |  F4   |   €   |                                  |   à   |   è   |   ù   |   ì   |   ò   |   ▼   |
+// |   ▼   |  F1   |  F2   |  F3   |  F4   | ⇶ €   |                                  | ⇶ à   | ⇶ è   | ⇶ ù   | ⇶ ì   | ⇶ ò   |   ▼   |
 // |-------+-------+-------+-------+-------+-------|                                  |-------+-------+-------+-------+-------+-------|
-// |       |  F5   |  F6   |  F7   |  F8   |       |                                  |   ä   |   ë   |   ü   |   ï   |   ö   |   `   |
+// |       |  F5   |  F6   |  F7   |  F8   |       |                                  | ⇶ ä   | ⇶ ë   | ⇶ ü   | ⇶ ï   | ⇶ ö   |   `   |
 // |-------+-------+-------+-------+-------+-------+---------------.  ,---------------+-------+-------+-------+-------+-------+-------|
-// |       |  F9   |  F10  |  F11  |  F12  |       |   ▼   |   ▼   |  |   ▼   |   ▼   |   á   |   é   |   ú   |   í   |   ó   |Compose|
+// |       |  F9   |  F10  |  F11  |  F12  |       |   ▼   |   ▼   |  |   ▼   |   ▼   | ⇶ á   | ⇶ é   | ⇶ ú   | ⇶ í   | ⇶ ó   |Compose|
 // `-----------------------+-------+-------+-------+-------+-------|  |-------+-------+-------+-------+-------+-------+---------------'
 //                         |       |       |       |       |       |  |       |       |       |       |       |
 //                         |   ▼   |   ▼   |   ▼   |   ▼   |   ▼   |  |   ▼   |   ▼   |   ▼   |   ▼   |   ▼   |
@@ -233,10 +241,10 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 // |-------+-------+-------+-------+-------+-------|                                  |-------+-------+-------+-------+-------+-------|
 // |  Tab  |   a   |   s   |   d   |   f   |   g   |                                  |   h   |   j   |   k   |   l   |  ' "  | Enter |
 // |-------+-------+-------+-------+-------+-------+---------------.  ,---------------+-------+-------+-------+-------+-------+-------|
-// | S-Tab |   z   |   x   |   c   |   v   |   b   | ▲Mouse| ▲Conf |  | ▲Conf |  BALL |   n   |   m   |  , ;  |  . :  |  ? !  |  Del  |
+// | S-Tab |   z   |   x   |   c   |   v   |   b   | ▲Mouse| ▲Conf |  | ▲Conf | ⥮BALL |   n   |   m   |  , ;  |  . :  |  ? !  |  Del  |
 // `-----------------------+-------+-------+-------+-------+-------|  |-------+-------+-------+-------+-------+-----------------------'
 //                         |       |       |       |       |       |  |       |       |       |       |       |
-//                         | ENC1  |▲Accent|  ▲Nav | Space |▲Symbol|  |  Ctrl | Shift |  Alt  |  GUI  | ENC2  |
+//                         | ⥮ENC1 |▲Accent|  ▲Nav | Space |▲Symbol|  |  Ctrl | Shift |  Alt  |  GUI  | ⥮ENC2 |
 //                         `---------------------------------------'  `---------------------------------------'
   [_BASE] = LAYOUT(
        KC_ESC, KC_Q, KC_W,    KC_E,       KC_R,       KC_T,                                                 KC_Y,    KC_U,     KC_I,      KC_O,    KC_P, KC_BSPC,
