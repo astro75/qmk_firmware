@@ -73,13 +73,10 @@ enum custom_keycodes {
 
 void composed(uint16_t keycode) {
   uint8_t mod = get_mods();
-  uint8_t osm = get_oneshot_mods();
 
   clear_mods();
-  clear_oneshot_mods();
   tap_code16(KC_COMP);
   set_mods(mod);
-  set_oneshot_mods(osm);
 
   switch (keycode) {
     case C_EUR:
@@ -96,18 +93,18 @@ void diacritic(uint16_t keycode) {
   uint16_t accent = dia_accents[(keycode - C_A_A) % 3];
 
   uint8_t mod = get_mods();
-  uint8_t osm = get_oneshot_mods();
 
   clear_mods();
-  clear_oneshot_mods();
   tap_code16(KC_COMP);
   tap_code16(accent);
   set_mods(mod);
-  set_oneshot_mods(osm);
 
   tap_code16(letter);
 }
 
+// TODO: handle ,; .: ?!
+//         https://github.com/qmk/qmk_firmware/pull/4795
+//         https://github.com/qmk/qmk_firmware/pull/11422 <- more extensive
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     switch (keycode) {
       case C_EUR ... C_EUR:
@@ -134,6 +131,7 @@ void matrix_scan_user(void) {
   #endif
 }
 
+// https://config.qmk.fm/#/test
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 // Legend:
 // ▲    Layer key
