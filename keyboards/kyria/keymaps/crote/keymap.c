@@ -193,19 +193,19 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
 // Accents
 // ,-----------------------------------------------.                                  ,-----------------------------------------------.
-// |   ▼   |  F1   |  F2   |  F3   |  F4   |       |                                  |   à   |   è   |   ù   |   ì   |   ò   |   ▼   |
+// |   ▼   |  F1   |  F2   |  F3   |  F4   |   €   |                                  |   à   |   è   |   ù   |   ì   |   ò   |   ▼   |
 // |-------+-------+-------+-------+-------+-------|                                  |-------+-------+-------+-------+-------+-------|
-// |       |  F5   |  F6   |  F7   |  F8   |       |                                  |   ä   |   ë   |   ü   |   ï   |   ö   |   €   |
+// |       |  F5   |  F6   |  F7   |  F8   |       |                                  |   ä   |   ë   |   ü   |   ï   |   ö   |   `   |
 // |-------+-------+-------+-------+-------+-------+---------------.  ,---------------+-------+-------+-------+-------+-------+-------|
-// |       |  F9   |  F10  |  F11  |  F12  |       |   ▼   |   ▼   |  |   ▼   |   ▼   |   á   |   é   |   ú   |   í   |   ó   |   `   |
+// |       |  F9   |  F10  |  F11  |  F12  |       |   ▼   |   ▼   |  |   ▼   |   ▼   |   á   |   é   |   ú   |   í   |   ó   |Compose|
 // `-----------------------+-------+-------+-------+-------+-------|  |-------+-------+-------+-------+-------+-------+---------------'
 //                         |       |       |       |       |       |  |       |       |       |       |       |
 //                         |   ▼   |   ▼   |   ▼   |   ▼   |   ▼   |  |   ▼   |   ▼   |   ▼   |   ▼   |   ▼   |
 //                         `---------------------------------------'  `---------------------------------------'
   [_ACCS] = LAYOUT(
-    KC_TRNS, KC_F1,  KC_F2,   KC_F3,   KC_F4, _______,                                         C_A_G,   C_E_G,   C_U_G, C_I_G, C_O_G, KC_TRNS,
-    _______, KC_F5,  KC_F6,   KC_F7,   KC_F8, _______,                                         C_A_T,   C_E_T,   C_U_T, C_I_T, C_O_T,   C_EUR,
-    _______, KC_F9, KC_F10,  KC_F11,  KC_F12, _______, KC_TRNS, KC_TRNS,   KC_TRNS, KC_TRNS,   C_A_A,   C_E_A,   C_U_A, C_I_A, C_O_A,  KC_GRV,
+    KC_TRNS, KC_F1,  KC_F2,   KC_F3,   KC_F4,   C_EUR,                                         C_A_G,   C_E_G,   C_U_G, C_I_G, C_O_G, KC_TRNS,
+    _______, KC_F5,  KC_F6,   KC_F7,   KC_F8, _______,                                         C_A_T,   C_E_T,   C_U_T, C_I_T, C_O_T, KC_GRV,
+    _______, KC_F9, KC_F10,  KC_F11,  KC_F12, _______, KC_TRNS, KC_TRNS,   KC_TRNS, KC_TRNS,   C_A_A,   C_E_A,   C_U_A, C_I_A, C_O_A, KC_COMP,
                             KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,   KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS
   ),
 
@@ -235,16 +235,15 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 // |-------+-------+-------+-------+-------+-------+---------------.  ,---------------+-------+-------+-------+-------+-------+-------|
 // | S-Tab |   z   |   x   |   c   |   v   |   b   | ▲Mouse| ▲Conf |  | ▲Conf |  BALL |   n   |   m   |  , ;  |  . :  |  ? !  |  Del  |
 // `-----------------------+-------+-------+-------+-------+-------|  |-------+-------+-------+-------+-------+-----------------------'
-//                         |       |       |       | Shift |       |  |       | Shift |▲Accent|       |       |
-//                         | ENC1  |  GUI  |  Alt  | Space | Ctrl  |  |▲Symbol| Space |Compose|  ▲Nav | ENC2  |
+//                         |       |       |       |       |       |  |       |       |       |       |       |
+//                         | ENC1  |▲Accent|  ▲Nav | Space |▲Symbol|  |  Ctrl | Shift |  Alt  |  GUI  | ENC2  |
 //                         `---------------------------------------'  `---------------------------------------'
   [_BASE] = LAYOUT(
-       KC_ESC, KC_Q, KC_W,    KC_E,    KC_R,    KC_T,                                                                       KC_Y,      KC_U,     KC_I,      KC_O,    KC_P, KC_BSPC,
-       KC_TAB, KC_A, KC_S,    KC_D,    KC_F,    KC_G,                                                                       KC_H,      KC_J,     KC_K,      KC_L, KC_QUOT,  KC_ENT,
-    S(KC_TAB), KC_Z, KC_X,    KC_C,    KC_V,    KC_B,      MO(_MOUS), MO(_CONF),   MO(_CONF),         U_BALL,               KC_N,      KC_M, KC_COMMA,    KC_DOT, KC_QUES,  KC_DEL,
-                            U_ENC1, KC_LGUI, KC_LALT, LSFT_T(KC_SPC),  KC_LCTRL,   MO(_SYMB), RSFT_T(KC_SPC), LT(_ACCS, KC_COMP), MO(_NAVI),   U_ENC2
+       KC_ESC, KC_Q, KC_W,    KC_E,       KC_R,       KC_T,                                                 KC_Y,    KC_U,     KC_I,      KC_O,    KC_P, KC_BSPC,
+       KC_TAB, KC_A, KC_S,    KC_D,       KC_F,       KC_G,                                                 KC_H,    KC_J,     KC_K,      KC_L, KC_QUOT,  KC_ENT,
+    S(KC_TAB), KC_Z, KC_X,    KC_C,       KC_V,       KC_B, MO(_MOUS),  MO(_CONF),   MO(_CONF),  U_BALL,    KC_N,    KC_M, KC_COMMA,    KC_DOT, KC_QUES,  KC_DEL,
+                            U_ENC1, OSL(_ACCS), OSL(_NAVI),    KC_SPC, OSL(_SYMB),    KC_LCTRL, KC_LSFT, KC_LALT, KC_LGUI,   U_ENC2
   ),
-
 
 // Layer template
 // ,-----------------------------------------------.                                  ,-----------------------------------------------.
