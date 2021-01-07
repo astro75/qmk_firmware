@@ -19,6 +19,11 @@
   // four pulses. This is useful to sync with encoder indents.
   // We use linear encoders, so use the lowest resolution possible.
   #define ENCODER_RESOLUTION 1
+  #define ENCODER_TICKS 72
+  #define ENCODER_COUNT 2
+
+  // Default Kyria direction is wrong
+  #define ENCODER_DIRECTION_FLIP
 #endif
 
 #ifdef RGBLIGHT_ENABLE
@@ -28,13 +33,6 @@
   #define RGBLIGHT_VAL_STEP 8
   #define RGBLIGHT_LIMIT_VAL 127
 #endif
-
-// Using this prevents us from having to change the count in the header
-// every time we add a combo
-// See new docs in https://github.com/qmk/qmk_firmware/pull/8591
-#define COMBO_VARIABLE_LEN
-
-#define COMBO_TERM 50
 
 // If you are using an Elite C rev3 on the slave side, uncomment the lines below:
 #define SPLIT_USB_DETECT
