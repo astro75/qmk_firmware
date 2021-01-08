@@ -164,8 +164,8 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 //                         `---------------------------------------'  `---------------------------------------'
   [_CONF] = LAYOUT(
     M_E1, M_B1,  RGB_SAI, RGB_HUI, RGB_VAI, _______,                                        _______, _______, _______, _______, _______, KC_PSCR,
-    M_E2, M_B2, RGB_RMOD, RGB_TOG, RGB_VAD, EEP_RST,                                        EEP_RST, _______, _______, _______, _______, KC_INS,
-    M_E3, M_B3,  RGB_SAD, RGB_HUD, RGB_MOD,   RESET, KC_POWER, KC_TRNS,   KC_TRNS, KC_TRNS,   RESET, _______, _______, _______, _______, KC_CAPS,
+    M_E2, M_B2, RGB_RMOD, RGB_TOG, RGB_MOD, EEP_RST,                                        EEP_RST, _______, _______, _______, _______, KC_INS,
+    M_E3, M_B3,  RGB_SAD, RGB_HUD, RGB_VAD,   RESET, KC_POWER, KC_TRNS,   KC_TRNS, KC_TRNS,   RESET, _______, _______, _______, _______, KC_CAPS,
                           KC_TRNS, KC_TRNS, KC_TRNS,  KC_TRNS, KC_TRNS,   KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS
   ),
 
