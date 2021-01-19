@@ -22,10 +22,7 @@ enum custom_keycodes {
     #ifdef ENCODER_ENABLE
       ENC_KEYS
     #endif
-    U_BALL,
-    // Mode configuration
-    /// Ball
-    M_B1,
-    M_B2,
-    M_B3,
+    // Trackball speed
+    M_FAST,
+    M_SLOW,
 };

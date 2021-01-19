@@ -29,12 +29,37 @@ void matrix_scan_user(void) {
   #endif
 }
 
+bool tb_slow = false;
+bool tb_fast = false;
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     #ifdef ENCODER_ENABLE
       if (!process_record_encoder(keycode, record)) return false;
     #endif
 
-    return true;
+    switch (keycode) {
+      case M_FAST:
+        tb_fast = record->event.pressed;
+        break;
+      case M_SLOW:
+        tb_slow = record->event.pressed;
+        break;
+      default:
+        return true;
+    }
+    return false;
+}
+
+void process_trackball_user(trackball_record_t *record) {
+  uint8_t multiplier;
+  if (tb_slow) {
+    multiplier = 1;
+  } else if (tb_fast) {
+    multiplier = 32;
+  } else {
+    multiplier = 8;
+  }
+  record->x *= multiplier;
+  record->y *= multiplier;
 }
 
 void suspend_power_down_user(void) {
@@ -82,20 +107,20 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
 // Configuration
 // ,-----------------------------------------------.                                  ,-----------------------------------------------.
-// |       |⇌Ball 1| Sat + | Hue + | Val + |       |                                  |       |       |       |       |       | PrScr |
+// |       |       | Sat + | Hue + | Val + |       |                                  |       |       |       |       |       | PrScr |
 // |-------+-------+-------+-------+-------+-------|                                  |-------+-------+-------+-------+-------+-------|
-// |       |⇌Ball 2| <Mode | On/Off| Mode> | EEPROM|                                  | EEPROM|       |       |       |       |  Ins  |
+// |       |       | <Mode | On/Off| Mode> | EEPROM|                                  | EEPROM|       |       |       |       |  Ins  |
 // |-------+-------+-------+-------+-------+-------+---------------.  ,---------------+-------+-------+-------+-------+-------+-------|
-// |       |⇌Ball 3| Sat - | Hue - | Val - | Reset |Standby|   ▼   |  |   ▼   |   ▼   | Reset |       |       |       |       |  Caps |
+// |       |       | Sat - | Hue - | Val - | Reset |Standby|   ▼   |  |   ▼   |   ▼   | Reset |       |       |       |       |  Caps |
 // `-----------------------+-------+-------+-------+-------+-------|  |-------+-------+-------+-------+-------+-----------------------'
 //                         |       |       |       |       |       |  |       |       |       |       |       |
 //                         |   ▼   |   ▼   |   ▼   |   ▼   |   ▼   |  |   ▼   |   ▼   |   ▼   |   ▼   |   ▼   |
 //                         `---------------------------------------'  `---------------------------------------'
   [_CONF] = LAYOUT(
-    _______, M_B1,  RGB_SAI, RGB_HUI, RGB_VAI, _______,                                        _______, _______, _______, _______, _______, KC_PSCR,
-    _______, M_B2, RGB_RMOD, RGB_TOG, RGB_MOD, EEP_RST,                                        EEP_RST, _______, _______, _______, _______, KC_INS,
-    _______, M_B3,  RGB_SAD, RGB_HUD, RGB_VAD,   RESET, KC_POWER, KC_TRNS,   KC_TRNS, KC_TRNS,   RESET, _______, _______, _______, _______, KC_CAPS,
-                             KC_TRNS, KC_TRNS, KC_TRNS,  KC_TRNS, KC_TRNS,   KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS
+    _______, _______,  RGB_SAI, RGB_HUI, RGB_VAI, _______,                                        _______, _______, _______, _______, _______, KC_PSCR,
+    _______, _______, RGB_RMOD, RGB_TOG, RGB_MOD, EEP_RST,                                        EEP_RST, _______, _______, _______, _______, KC_INS,
+    _______, _______,  RGB_SAD, RGB_HUD, RGB_VAD,   RESET, KC_POWER, KC_TRNS,   KC_TRNS, KC_TRNS,   RESET, _______, _______, _______, _______, KC_CAPS,
+                                KC_TRNS, KC_TRNS, KC_TRNS,  KC_TRNS, KC_TRNS,   KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS
   ),
 
 // Mouse
@@ -104,7 +129,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 // |-------+-------+-------+-------+-------+-------|                                  |-------+-------+-------+-------+-------+-------|
 // |   ╳   |   ╳   |   ╳   |   ╳   |   ╳   |   ╳   |                                  |  M 5  |       |       |       |       |       |
 // |-------+-------+-------+-------+-------+-------+---------------.  ,---------------+-------+-------+-------+-------+-------+-------|
-// |   ╳   |   ╳   |   ╳   |   ╳   |   ╳   |   ╳   |   ╳   |   ╳   |  | Acc 2 |   ▼   | Acc 3 |       |       |       |       |       |
+// |   ╳   |   ╳   |   ╳   |   ╳   |   ╳   |   ╳   |   ╳   |   ╳   |  |  Fast |   ▼   |  Slow |       |       |       |       |       |
 // `-----------------------+-------+-------+-------+-------+-------|  |-------+-------+-------+-------+-------+-----------------------'
 //                         |       |       |       |       |       |  |       |       |       |       |       |
 //                         |   ╳   |   ╳   |   ╳   |   ╳   |   ╳   |  |   L   |   M   |   R   | Scroll|       |
@@ -112,7 +137,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   [_MOUS] = LAYOUT(
     XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,                                       KC_BTN4, _______, _______, _______, _______, _______,
     XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,                                       KC_BTN5, _______, _______, _______, _______, _______,
-    XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,   _______, KC_TRNS, _______, _______, _______, _______, _______, _______,
+    XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,    M_FAST, KC_TRNS,  M_SLOW, _______, _______, _______, _______, _______,
                                XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,   KC_BTN1, KC_BTN2, KC_BTN3, _______, _______
   ),
 
