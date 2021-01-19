@@ -8,5 +8,5 @@ CONSOLE_ENABLE = yes
 TRACKBALL_ENABLE = yes
 
 ifeq ($(strip $(ENCODER_ENABLE)), yes)
-	SRC += encoder_utils.c
+	SRC += enc.c
 endif

@@ -13,57 +13,20 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include QMK_KEYBOARD_H
+#include "crote.h"
 
 #ifdef TRACKBALL_ENABLE
 #    include "trackball.h"
 #endif
-#ifdef ENCODER_ENABLE
-#    include "encoder_utils.h"
-#endif
 
 #include "print.h"
-
-enum layers {
-    _BASE = 0,
-    _SYMB,
-    _NUMB,
-    _NAVI,
-    _MOUS,
-    _CONF,
-};
-
-enum custom_keycodes {
-    // Unused, placeholder for the start value
-    DUMMY = SAFE_RANGE,
-    // Mode-dependent keys
-    U_ENC1,
-    U_ENC2,
-    U_BALL,
-    // Mode configuration
-    /// Encoder
-    M_E1,
-    M_E2,
-    M_E3,
-    /// Ball
-    M_B1,
-    M_B2,
-    M_B3,
-    // Composed symbols
-    C_EUR,
-    // Diacritic prefixes
-    C_ACUTE, // á
-    C_GRAVE, // à
-    C_CIRCU, // â
-    C_TREMA, // ä
-};
 
 void matrix_init_user(void) {
   #ifdef TRACKBALL_ENABLE
     trackball_init(TB_PRESS_MATRIX(6,1), TB_MOVE_MANUAL, TB_LED_MIRROR(10));
   #endif
   #ifdef ENCODER_ENABLE
-    enc_init();
+    matrix_init_enc();
   #endif
 }
 
@@ -72,7 +35,7 @@ void matrix_scan_user(void) {
     trackball_scan();
   #endif
   #ifdef ENCODER_ENABLE
-    enc_tick();
+    matrix_scan_enc();
   #endif
 }
 
@@ -104,22 +67,11 @@ void diacritic(uint16_t keycode) {
 }
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
-    switch (keycode) {
-      #ifdef ENCODER_ENABLE
-        case U_ENC1 ... U_ENC2:
-          enc_press(keycode - U_ENC1, record);
-          return false;
-        case M_E1:
-          enc_set_mode(0, ENC_SCROLL);
-          return false;
-        case M_E2:
-          enc_set_mode(0, ENC_TAB);
-          return false;
-        case M_E3:
-          enc_set_mode(0, ENC_MEDIA);
-          return false;
-      #endif
+    #ifdef ENCODER_ENABLE
+      if (!process_record_encoder(keycode, record)) return false;
+    #endif
 
+    switch (keycode) {
       case C_EUR ... C_EUR:
         if (record->event.pressed)
           composed(keycode);
@@ -132,13 +84,37 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     return true;
 }
 
-#ifdef ENCODER_ENABLE
-  void encoder_update_user(uint8_t index, bool clockwise) {
-    enc_turn(index, clockwise);
-  }
-#endif
+void suspend_power_down_user(void) {
+
+}
+
+void suspend_wakeup_init_user(void) {
+
+}
+
+// This layout is intended to be used with `English (intl., with AltGr dead keys)`
+// with a manually defined `Compose` on Right Ctrl.
+// It will be switched to `EurKEY (US)` once the following bug is fixed:
+// https://gitlab.freedesktop.org/xkeyboard-config/xkeyboard-config/-/issues/246
+
+// Why switch to EurKEY?
+// - Integrated Compose key
+// - Dead key for Greek letters
+
+// Full list of compose combinations can be found in
+//   /usr/share/X11/locale/en_US.UTF-8/Compose
+// or
+//   https://www.x.org/releases/X11R7.7/doc/libX11/i18n/compose/en_US.UTF-8.html
+// This can be extended using a per-user config file
+//   https://wiki.archlinux.org/index.php/Xorg/Keyboard_configuration#Configuring_compose_key
+//   https://linux.die.net/man/5/compose
+// Mutter uses libxkbcommon and that definitely has support for it,
+// but does it actually use it?
+// Note that composed keys do not support press & hold
+#define KC_COMP (KC_RCTRL)
 
 // https://config.qmk.fm/#/test
+// or `xkbcli interactive-x11` from `libxkbcommon-utils`
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 // Legend:
 // ▲    Layer key
@@ -153,20 +129,20 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
 // Configuration
 // ,-----------------------------------------------.                                  ,-----------------------------------------------.
-// | ⇌Enc 1|⇌Ball 1| Sat + | Hue + | Val + |       |                                  |       |       |       |       |       | PrScr |
+// |       |⇌Ball 1| Sat + | Hue + | Val + |       |                                  |       |       |       |       |       | PrScr |
 // |-------+-------+-------+-------+-------+-------|                                  |-------+-------+-------+-------+-------+-------|
-// | ⇌Enc 2|⇌Ball 2| <Mode | On/Off| Mode> | EEPROM|                                  | EEPROM|       |       |       |       |  Ins  |
+// |       |⇌Ball 2| <Mode | On/Off| Mode> | EEPROM|                                  | EEPROM|       |       |       |       |  Ins  |
 // |-------+-------+-------+-------+-------+-------+---------------.  ,---------------+-------+-------+-------+-------+-------+-------|
-// | ⇌Enc 3|⇌Ball 3| Sat - | Hue - | Val - | Reset |Standby|   ▼   |  |   ▼   |   ▼   | Reset |       |       |       |       |  Caps |
+// |       |⇌Ball 3| Sat - | Hue - | Val - | Reset |Standby|   ▼   |  |   ▼   |   ▼   | Reset |       |       |       |       |  Caps |
 // `-----------------------+-------+-------+-------+-------+-------|  |-------+-------+-------+-------+-------+-----------------------'
 //                         |       |       |       |       |       |  |       |       |       |       |       |
 //                         |   ▼   |   ▼   |   ▼   |   ▼   |   ▼   |  |   ▼   |   ▼   |   ▼   |   ▼   |   ▼   |
 //                         `---------------------------------------'  `---------------------------------------'
   [_CONF] = LAYOUT(
-    M_E1, M_B1,  RGB_SAI, RGB_HUI, RGB_VAI, _______,                                        _______, _______, _______, _______, _______, KC_PSCR,
-    M_E2, M_B2, RGB_RMOD, RGB_TOG, RGB_MOD, EEP_RST,                                        EEP_RST, _______, _______, _______, _______, KC_INS,
-    M_E3, M_B3,  RGB_SAD, RGB_HUD, RGB_VAD,   RESET, KC_POWER, KC_TRNS,   KC_TRNS, KC_TRNS,   RESET, _______, _______, _______, _______, KC_CAPS,
-                          KC_TRNS, KC_TRNS, KC_TRNS,  KC_TRNS, KC_TRNS,   KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS
+    _______, M_B1,  RGB_SAI, RGB_HUI, RGB_VAI, _______,                                        _______, _______, _______, _______, _______, KC_PSCR,
+    _______, M_B2, RGB_RMOD, RGB_TOG, RGB_MOD, EEP_RST,                                        EEP_RST, _______, _______, _______, _______, KC_INS,
+    _______, M_B3,  RGB_SAD, RGB_HUD, RGB_VAD,   RESET, KC_POWER, KC_TRNS,   KC_TRNS, KC_TRNS,   RESET, _______, _______, _______, _______, KC_CAPS,
+                             KC_TRNS, KC_TRNS, KC_TRNS,  KC_TRNS, KC_TRNS,   KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS
   ),
 
 // Mouse
@@ -217,10 +193,10 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 //                         |   ▼   |   ▼   |   ▼   |   ▼   |   ▼   |  |   ▼   |   ▼   |   ▼   |   ▼   |   ▼   |
 //                         `---------------------------------------'  `---------------------------------------'
   [_NUMB] = LAYOUT(
-    KC_COMP, C_CIRCU, C_GRAVE, C_TREMA, C_ACUTE,   C_EUR,                                       _______,   KC_F1,  KC_F2,  KC_F3,  KC_F4, _______,
-       KC_0,    KC_1,    KC_2,    KC_3,    KC_4,    KC_5,                                       _______,   KC_F5,  KC_F6,  KC_F7,  KC_F8, _______,
-    _______,    KC_6,    KC_7,    KC_8,    KC_9, _______, KC_TRNS, KC_TRNS,   KC_TRNS, KC_TRNS, _______,   KC_F9, KC_F10, KC_F11, KC_F12, _______,
-                               KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,   KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS
+    KC_COMP, ALGR(KC_CIRC), ALGR(KC_GRV), ALGR(KC_DQUO), ALGR(KC_QUOT), ALGR(KC_5),                                       _______,   KC_F1,  KC_F2,  KC_F3,  KC_F4, _______,
+       KC_0,          KC_1,         KC_2,          KC_3,          KC_4,       KC_5,                                       _______,   KC_F5,  KC_F6,  KC_F7,  KC_F8, _______,
+    _______,          KC_6,         KC_7,          KC_8,          KC_9,    _______, KC_TRNS, KC_TRNS,   KC_TRNS, KC_TRNS, _______,   KC_F9, KC_F10, KC_F11, KC_F12, _______,
+                                                KC_TRNS,       KC_TRNS,    KC_TRNS, KC_TRNS, KC_TRNS,   KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS
   ),
 
 // Symbols
@@ -254,10 +230,10 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 //                         | ⥮ENC1 | ▲Navi | ▲Numb | Space | ▲Symb |  |  Ctrl | Shift |  Alt  |  GUI  | ⥮ENC2 |
 //                         `---------------------------------------'  `---------------------------------------'
   [_BASE] = LAYOUT(
-    _______, KC_Q, KC_W,   KC_E,       KC_R,       KC_T,                                                 KC_Y,    KC_U,     KC_I,   KC_O,   KC_P,    KC_DEL,
-     KC_ESC, KC_A, KC_S,   KC_D,       KC_F,       KC_G,                                                 KC_H,    KC_J,     KC_K,   KC_L, KC_ENT,   KC_BSPC,
-    _______, KC_Z, KC_X,   KC_C,       KC_V,       KC_B, G(KC_L),  MO(_CONF),   MO(_CONF), TG(_MOUS),    KC_N,    KC_M, KC_COMMA, KC_DOT, KC_TAB, S(KC_TAB),
-                         U_ENC1, OSL(_NAVI), OSL(_NUMB),  KC_SPC, OSL(_SYMB),    KC_LCTRL,   KC_LSFT, KC_LALT, KC_LGUI,   U_ENC2
+    _______, KC_Q, KC_W,  KC_E,       KC_R,       KC_T,                                                 KC_Y,    KC_U,     KC_I,   KC_O,   KC_P,    KC_DEL,
+     KC_ESC, KC_A, KC_S,  KC_D,       KC_F,       KC_G,                                                 KC_H,    KC_J,     KC_K,   KC_L, KC_ENT,   KC_BSPC,
+    _______, KC_Z, KC_X,  KC_C,       KC_V,       KC_B, G(KC_L),  MO(_CONF),   MO(_CONF), TG(_MOUS),    KC_N,    KC_M, KC_COMMA, KC_DOT, KC_TAB, S(KC_TAB),
+                         ENC_L, OSL(_NAVI), OSL(_NUMB),  KC_SPC, OSL(_SYMB),    KC_LCTRL,   KC_LSFT, KC_LALT, KC_LGUI,    ENC_R
   ),
 
 // Layer template

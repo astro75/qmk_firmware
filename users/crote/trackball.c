@@ -228,6 +228,7 @@ void trackball_scan(void) {
 
 	//uprintf("tb: %d ticks\n", ticks);
 
+	// https://github.com/qmk/qmk_firmware/pull/11064
 	report_mouse_t report = {};
 	int8_t x = (tb_xy[0] - tb_xy[1]) * ticks;
 	int8_t y = (tb_xy[2] - tb_xy[3]) * ticks;

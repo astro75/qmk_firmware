@@ -32,6 +32,10 @@
   #define RGBLIGHT_SAT_STEP 8
   #define RGBLIGHT_VAL_STEP 8
   #define RGBLIGHT_LIMIT_VAL 127
+
+  // Turn off underglow when system goes to sleep
+  // TODO: does not work??
+  #define RGBLIGHT_SLEEP
 #endif
 
 // If you are using an Elite C rev3 on the slave side, uncomment the lines below:
@@ -49,8 +53,3 @@
 // Our hardware can easily handle 400k,
 // so this greatly increases the scan frequency
 #define F_SCL 400000UL
-
-// COMPOSE docs: https://help.ubuntu.com/community/GtkComposeTable
-// Compose key, depends on OS settings
-// Note that composed keys do not support press & hold
-#define KC_COMP (KC_RCTRL)
