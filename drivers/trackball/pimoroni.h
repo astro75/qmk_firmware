@@ -57,16 +57,31 @@ If your code has handled an event, you can prevent the default behaviour from
 executing by clearing the corresponding bit.
 
 ### Intercept movement
+This example uses the trackball movement to control underglow color.
+Note the last line, preventing the default behavour.
 ```
 process_trackball_user(trackball_record_t *record) {
     if (record->type & TB_MOVED) {
-        // Do something here
-        record->type &= ~TB_MOVED; // Prevent default handler
+        for (int i = record->x; i < 0; i++) {
+            rgblight_increase_hue();
+        }
+        for (int i = record->x; i > 0; i--) {
+            rgblight_decrease_hue();
+        }
+        for (int i = record->y; i < 0; i++) {
+            rgblight_increase_sat();
+        }
+        for (int i = record->y; i > 0; i--) {
+            rgblight_decrease_sat();
+        }
+        record->type &= ~TB_MOVED;
     }
 }
 ```
 
 ### Custom acceleration
+This example demonstrates how to change a movement while keeping the default behavour.
+When the `M_FAST` key is held, the mouse will move faster.
 ```
 enum custom_keycodes {
     M_FAST = SAFE_RANGE,
