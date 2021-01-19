@@ -45,6 +45,10 @@
 #    include "haptic.h"
 #endif
 
+#ifdef TRACKBALL_ENABLE
+#    include "pimoroni.h"
+#endif
+
 #ifdef AUDIO_ENABLE
 #    ifndef GOODBYE_SONG
 #        define GOODBYE_SONG SONG(GOODBYE_SOUND)
@@ -634,11 +638,18 @@ void matrix_init_quantum() {
 #if defined(BLUETOOTH_ENABLE) && defined(OUTPUT_AUTO_ENABLE)
     set_output(OUTPUT_AUTO);
 #endif
+#ifdef TRACKBALL_ENABLE
+    trackball_init();
+#endif
 
     matrix_init_kb();
 }
 
 void matrix_scan_quantum() {
+#ifdef TRACKBALL_ENABLE
+    trackball_task();
+#endif
+
 #if defined(AUDIO_ENABLE) && !defined(NO_MUSIC_MODE)
     matrix_scan_music();
 #endif

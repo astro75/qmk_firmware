@@ -77,6 +77,12 @@ ifeq ($(strip $(FAUXCLICKY_ENABLE)), yes)
     SRC += $(QUANTUM_DIR)/fauxclicky.c
 endif
 
+ifeq ($(strip $(TRACKBALL_ENABLE)), yes)
+    OPT_DEFS += -DTRACKBALL_ENABLE
+    COMMON_VPATH += $(DRIVER_PATH)/trackball
+    SRC += $(DRIVER_PATH)/trackball/pimoroni.c
+endif
+
 ifeq ($(strip $(POINTING_DEVICE_ENABLE)), yes)
     OPT_DEFS += -DPOINTING_DEVICE_ENABLE
     OPT_DEFS += -DMOUSE_ENABLE
