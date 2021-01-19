@@ -50,16 +50,30 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 }
 
 void process_trackball_user(trackball_record_t *record) {
-  uint8_t multiplier;
-  if (tb_slow) {
-    multiplier = 1;
-  } else if (tb_fast) {
-    multiplier = 32;
-  } else {
-    multiplier = 8;
+  //uint8_t multiplier;
+  //if (tb_slow) {
+  //  multiplier = 1;
+  //} else if (tb_fast) {
+  //  multiplier = 32;
+  //} else {
+  //  multiplier = 8;
+  //}
+  //record->x *= multiplier;
+  //record->y *= multiplier;
+
+  for (int i = record->x; i < 0; i++) {
+    rgblight_increase_hue();
   }
-  record->x *= multiplier;
-  record->y *= multiplier;
+  for (int i = record->x; i > 0; i--) {
+    rgblight_decrease_hue();
+  }
+  for (int i = record->y; i < 0; i++) {
+    rgblight_increase_sat();
+  }
+  for (int i = record->y; i > 0; i--) {
+    rgblight_decrease_sat();
+  }
+  record->type &= ~TB_MOVED;
 }
 
 void suspend_power_down_user(void) {
