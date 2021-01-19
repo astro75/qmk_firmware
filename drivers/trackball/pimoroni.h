@@ -68,10 +68,29 @@ process_trackball_user(trackball_record_t *record) {
 
 ### Custom acceleration
 ```
+enum custom_keycodes {
+    M_FAST = SAFE_RANGE,
+};
+
+bool go_fast;
+
+bool process_record_user(uint16_t keycode, keyrecord_t *record) {
+    switch (keycode) {
+      case M_FAST:
+        go_fast = record->event.pressed;
+        return false;
+      default:
+        break;
+    }
+    return true;
+}
+
 process_trackball_user(trackball_record_t *record) {
     if (record->type & TB_MOVED) {
-        record->type.x *= 2;
-        record->type.y *= 2;
+        if (go_fast) {
+            record->type.x *= 20;
+            record->type.y *= 20;
+        }
     }
 }
 ```
