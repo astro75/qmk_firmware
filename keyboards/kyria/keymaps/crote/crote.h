@@ -28,11 +28,4 @@ enum custom_keycodes {
     M_B1,
     M_B2,
     M_B3,
-    // Composed symbols
-    C_EUR,
-    // Diacritic prefixes
-    C_ACUTE, // á
-    C_GRAVE, // à
-    C_CIRCU, // â
-    C_TREMA, // ä
 };

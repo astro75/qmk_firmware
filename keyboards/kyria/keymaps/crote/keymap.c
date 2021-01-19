@@ -15,55 +15,18 @@
  */
 #include "crote.h"
 
-#ifdef TRACKBALL_ENABLE
-#    include "trackball.h"
-#endif
-
 #include "print.h"
 
 void matrix_init_user(void) {
-  #ifdef TRACKBALL_ENABLE
-    trackball_init(TB_PRESS_MATRIX(6,1), TB_MOVE_MANUAL, TB_LED_MIRROR(10));
-  #endif
   #ifdef ENCODER_ENABLE
     matrix_init_enc();
   #endif
 }
 
 void matrix_scan_user(void) {
-  #ifdef TRACKBALL_ENABLE
-    trackball_scan();
-  #endif
   #ifdef ENCODER_ENABLE
     matrix_scan_enc();
   #endif
-}
-
-void composed(uint16_t keycode) {
-  uint8_t mod = get_mods();
-
-  clear_mods();
-  tap_code16(KC_COMP);
-  set_mods(mod);
-
-  switch (keycode) {
-    case C_EUR:
-      SEND_STRING("e=");
-      break;
-  }
-}
-
-void diacritic(uint16_t keycode) {
-  //                               á         à         â              ä
-  const uint16_t dia_accents[] = { KC_QUOTE, KC_GRAVE, KC_CIRCUMFLEX, KC_DOUBLE_QUOTE};
-
-  uint16_t accent = dia_accents[keycode - C_ACUTE];
-
-  uint8_t mod = get_mods();
-  clear_mods();
-  tap_code16(KC_COMP);
-  tap_code16(accent);
-  set_mods(mod);
 }
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
@@ -71,16 +34,6 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
       if (!process_record_encoder(keycode, record)) return false;
     #endif
 
-    switch (keycode) {
-      case C_EUR ... C_EUR:
-        if (record->event.pressed)
-          composed(keycode);
-        return false;
-      case C_ACUTE ... C_TREMA:
-        if (record->event.pressed)
-          diacritic(keycode);
-        return false;
-    }
     return true;
 }
 
@@ -111,7 +64,7 @@ void suspend_wakeup_init_user(void) {
 // Mutter uses libxkbcommon and that definitely has support for it,
 // but does it actually use it?
 // Note that composed keys do not support press & hold
-#define KC_COMP (KC_RCTRL)
+#define KC_COMP KC_RCTRL
 
 // https://config.qmk.fm/#/test
 // or `xkbcli interactive-x11` from `libxkbcommon-utils`

@@ -16,8 +16,8 @@
  
 #ifdef ENCODER_ENABLE
   // Encoder resolution defaults to 4, which means we get one event every
-  // four pulses. This is useful to sync with encoder indents.
-  // We use linear encoders, so use the lowest resolution possible.
+  // four pulses. This is useful to sync with encoder indents, but
+  // we use linear encoders, so use the lowest resolution possible.
   #define ENCODER_RESOLUTION 1
   #define ENCODER_TICKS 72
   #define ENCODER_COUNT 2
@@ -27,7 +27,18 @@
 #endif
 
 #ifdef RGBLIGHT_ENABLE
-  #define RGBLIGHT_ANIMATIONS
+  //#define RGBLIGHT_EFFECT_BREATHING
+  //#define RGBLIGHT_EFFECT_RAINBOW_MOOD
+  //#define RGBLIGHT_EFFECT_RAINBOW_SWIRL
+  //#define RGBLIGHT_EFFECT_SNAKE
+  //#define RGBLIGHT_EFFECT_KNIGHT
+  //#define RGBLIGHT_EFFECT_CHRISTMAS
+  //#define RGBLIGHT_EFFECT_STATIC_GRADIENT
+  //#define RGBLIGHT_EFFECT_RGB_TEST
+  //#define RGBLIGHT_EFFECT_ALTERNATING
+  //#define RGBLIGHT_EFFECT_TWINKLE
+  //#define RGBLIGHT_EFFECT_STATIC_GRADIENT
+
   #define RGBLIGHT_HUE_STEP 8
   #define RGBLIGHT_SAT_STEP 8
   #define RGBLIGHT_VAL_STEP 8
@@ -53,3 +64,6 @@
 // Our hardware can easily handle 400k,
 // so this greatly increases the scan frequency
 #define F_SCL 400000UL
+
+// My switches do not lock
+#undef LOCKING_SUPPORT_ENABLE
