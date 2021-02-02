@@ -196,9 +196,35 @@ Similar to `matrix_scan_*`, these are called as often as the MCU can handle. To 
 
 # Keyboard Idling/Wake Code
 
-If the board supports it, it can be "idled", by stopping a number of functions.  A good example of this is RGB lights or backlights.   This can save on power consumption, or may be better behavior for your keyboard.
+## User interaction
 
-This is controlled by two functions: `suspend_power_down_*` and `suspend_wakeup_init_*`, which are called when the system board is idled and when it wakes up, respectively.
+QMK keeps track of the time elapsed since the last time the user physically interacted with the keyboard. This can be used to, for example, dim the underglow or disable an OLED display when the user has not been pressing any keys for a while.
+
+To activate this feature, add a line like `#define IDLE_AFTER 5000` to your `config.h` file, where `5000` represents the time in ms until the keyboard is considered "idle".
+
+Defining an idle time unlocks two new functions: `idle_sleep_*` and `idle_wake_*`. The first is called when the timer first elapses, the second is called when the user starts interacting with the keyboard again.
+
+### Example idle_sleep_user() and idle_wake_user() Implementation
+
+```c
+void idle_sleep_user(void) {
+  rgblight_mode_noeeprom(RGBLIGHT_MODE_BREATHING);
+}
+
+void idle_wake_user(void) {
+  rgblight_enable_noeeprom();
+}
+```
+
+If you want finer-grained control, you can use the [idle timer](ref_functions.md#software-timers) to implement a variant of this yourself. The `idle_time()` is available even when `IDLE_AFTER` has not been defined.
+
+## Suspension
+
+A suspension can be triggered by the USB interface entering a suspended state. This usually happens when the host computer goes into a standby mode.
+
+If the board supports it, it can then stop a number of functions, such as RGB lights or backlights.   This can save on power consumption, or may be better behavior for your keyboard.
+
+This is controlled by two functions: `suspend_power_down_*` and `suspend_wakeup_init_*`, which are called when the system board is suspended and when it wakes up, respectively.
 
 
 ### Example suspend_power_down_user() and suspend_wakeup_init_user() Implementation

@@ -21,6 +21,11 @@ QUANTUM_SRC += \
     $(QUANTUM_DIR)/keymap_common.c \
     $(QUANTUM_DIR)/keycode_config.c
 
+ifneq ($(strip $(NO_IDLE_TIMER)), yes)
+    OPT_DEFS += -DIDLE_TIMER_ENABLE
+    SRC += $(QUANTUM_DIR)/idle.c
+endif
+
 ifeq ($(strip $(DEBUG_MATRIX_SCAN_RATE_ENABLE)), yes)
     OPT_DEFS += -DDEBUG_MATRIX_SCAN_RATE
     CONSOLE_ENABLE = yes

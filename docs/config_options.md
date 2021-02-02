@@ -185,6 +185,8 @@ If you define these options you will enable the associated feature, which may in
   * Sets the delay between `register_code` and `unregister_code`, if you're having issues with it registering properly (common on VUSB boards). The value is in milliseconds.
 * `#define TAP_HOLD_CAPS_DELAY 80`
   * Sets the delay for Tap Hold keys (`LT`, `MT`) when using `KC_CAPSLOCK` keycode, as this has some special handling on MacOS.  The value is in milliseconds, and defaults to 80 ms if not defined. For macOS, you may want to set this to 200 or higher.
+* `#define IDLE_AFTER 5000`
+  * How long until the keyboard is considered "idle", triggering a user-definable [idle function](custom_quantum_functions.md#keyboard-idlingwake-code). By default, no value is defined, meaning the idle function will never be called.
 
 ## RGB Light Configuration
 
@@ -387,6 +389,8 @@ Use these to enable or disable building certain features. The more you have enab
   * Forces the keyboard to wait for a USB connection to be established before it starts up
 * `NO_USB_STARTUP_CHECK`
   * Disables usb suspend check after keyboard startup. Usually the keyboard waits for the host to wake it up before any tasks are performed. This is useful for split keyboards as one half will not get a wakeup call but must send commands to the master.
+* `NO_IDLE_TIMER`
+  * Disables the idle [timer](ref_functions.md#software-timers) and [callbacks](custom_quantum_functions.md#keyboard-idlingwake-code), saving a bit of flash and RAM.
 
 ## USB Endpoint Limitations
 

@@ -194,6 +194,10 @@ bool process_record_quantum(keyrecord_t *record) {
     //   return false;
     // }
 
+#ifdef IDLE_TIMER_ENABLE
+    idle_poke();
+#endif
+
 #ifdef VELOCIKEY_ENABLE
     if (velocikey_enabled() && record->event.pressed) {
         velocikey_accelerate();
@@ -621,6 +625,9 @@ void matrix_init_quantum() {
 #ifdef HAPTIC_ENABLE
     haptic_init();
 #endif
+#ifdef IDLE_TIMER_ENABLE
+    idle_init();
+#endif
 #if defined(BLUETOOTH_ENABLE) && defined(OUTPUT_AUTO_ENABLE)
     set_output(OUTPUT_AUTO);
 #endif
@@ -667,6 +674,10 @@ void matrix_scan_quantum() {
 
 #ifdef AUTO_SHIFT_ENABLE
     autoshift_matrix_scan();
+#endif
+
+#ifdef IDLE_TIMER_ENABLE
+    idle_task();
 #endif
 
     matrix_scan_kb();

@@ -29,6 +29,10 @@
 #include "matrix.h"
 #include "keymap.h"
 
+#ifdef IDLE_TIMER_ENABLE
+#    include "idle.h"
+#endif
+
 #ifdef BACKLIGHT_ENABLE
 #    ifdef LED_MATRIX_ENABLE
 #        include "led_matrix.h"

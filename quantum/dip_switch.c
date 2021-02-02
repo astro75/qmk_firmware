@@ -101,6 +101,9 @@ void dip_switch_read(bool forced) {
         }
     }
     if (has_dip_state_changed) {
+#ifdef IDLE_TIMER_ENABLE
+        idle_poke();
+#endif
         dip_switch_update_mask_kb(dip_switch_mask);
         memcpy(last_dip_switch_state, dip_switch_state, sizeof(dip_switch_state));
     }

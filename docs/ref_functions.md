@@ -117,3 +117,15 @@ if (timer_elapsed(key_timer) < 100) {
   // do something if 100ms or more have passed
 }
 ```
+
+If you wish to know the time since the latest user interaction, you can use:
+
+```c
+uint32_t time_since_keypress = idle_time();
+
+if (time_since_keypress > 5000) {
+  // do something if the keyboard hasn't been used for 5 seconds
+}
+```
+A "user interaction" is a change in the key matrix, DIP switch, or encoder status.
+If you wish to use this to turn on / off features after a timeout, you might be interested in [`idle_sleep_*` / `idle_wake_*`](custom_quantum_functions.md#keyboard-idlingwake-code).

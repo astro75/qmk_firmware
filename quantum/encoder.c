@@ -109,10 +109,16 @@ static void encoder_update(int8_t index, uint8_t state) {
     encoder_pulses[i] += encoder_LUT[state & 0xF];
     if (encoder_pulses[i] >= resolution) {
         encoder_value[index]++;
+#ifdef IDLE_TIMER_ENABLE
+        idle_poke();
+#endif
         encoder_update_kb(index, ENCODER_COUNTER_CLOCKWISE);
     }
     if (encoder_pulses[i] <= -resolution) {  // direction is arbitrary here, but this clockwise
         encoder_value[index]--;
+#ifdef IDLE_TIMER_ENABLE
+        idle_poke();
+#endif
         encoder_update_kb(index, ENCODER_CLOCKWISE);
     }
     encoder_pulses[i] %= resolution;
