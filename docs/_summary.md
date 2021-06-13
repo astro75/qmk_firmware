@@ -114,6 +114,7 @@
     * [Stenography](feature_stenography.md)
     * [Thermal Printer](feature_thermal_printer.md)
     * [Velocikey](feature_velocikey.md)
+    * [Trackball](feature_trackball.md)
 
 * Developing QMK
   * [PR Checklist](pr_checklist.md)
