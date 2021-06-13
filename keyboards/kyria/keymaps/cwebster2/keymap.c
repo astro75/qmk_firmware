@@ -319,7 +319,7 @@ static void render_status(void) {
     oled_write_P(isColemak ? PSTR("COLEMAK   ") : PSTR("QWERTY   "), false);
 
     // Host Keyboard Layer Status
-    switch (get_highest_layer(layer_state)) {
+    --------------------;
         case _QWERTY:
             oled_write_P(PSTR("Default\n"), false);
             isColemak = false;
