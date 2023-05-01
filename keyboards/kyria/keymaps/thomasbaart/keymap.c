@@ -14,6 +14,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include QMK_KEYBOARD_H
+#include "pointing_device.h"
+#include "print.h"
 
 uint16_t copy_paste_timer;
 
@@ -26,7 +28,8 @@ enum layers {
 };
 
 enum custom_keycodes {
-    KC_CCCV = SAFE_RANGE
+    KC_CCCV = SAFE_RANGE,
+    CUSTOM_SPACE
 };
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
@@ -48,7 +51,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
       KC_ESC,  KC_Q,   KC_W,   KC_E,   KC_R,   KC_T,                                         KC_Y,    KC_U,    KC_I,    KC_O,    KC_P,    KC_PIPE,
       KC_LSFT, KC_A,   KC_S,   KC_D,   KC_F,   KC_G,                                         KC_H,    KC_J,    KC_K,    KC_L,    KC_SCLN, KC_QUOT,
       KC_LCTL, KC_Z,   KC_X,   KC_C,   KC_V,   KC_B,   KC_CCCV,   XXXXXXX, KC_DEL, KC_LEAD,  KC_N,    KC_M,    KC_COMM, KC_DOT,  KC_SLSH, KC_MINS,
-              KC_LGUI, KC_LALT, MO(LOWER), MT(MOD_LSFT, KC_SPC), MT(MOD_LALT, KC_ENT), KC_BSPC, LT(NAV, KC_SPC), MO(RAISE), KC_TAB, KC_RALT
+              KC_LGUI, KC_LALT, MO(LOWER), MT(MOD_LSFT, KC_SPC), MT(MOD_LALT, KC_ENT), KC_BSPC, CUSTOM_SPACE, MO(RAISE), KC_TAB, KC_RALT
     ),
 /*
  * Lower Layer: Numpad, Media
@@ -156,7 +159,22 @@ layer_state_t layer_state_set_user(layer_state_t state) {
     return update_tri_layer_state(state, LOWER, RAISE, ADJUST);
 }
 
+bool customSpaceDown;
+bool customSpaceUsed;
+int totalDown;
+
+void keyboard_post_init_user(void) {
+  // Customise these values to desired behaviour
+  debug_enable=true;
+  //debug_matrix=true;
+  //debug_keyboard=true;
+  //debug_mouse=true;
+}
+
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
+    #ifdef CONSOLE_ENABLE
+    uprintf("KL: kc: 0x%04X, col: %u, row: %u, pressed: %b, time: %u, interrupt: %b, count: %u\n", keycode, record->event.key.col, record->event.key.row, record->event.pressed, record->event.time, record->tap.interrupted, record->tap.count);
+#endif 
     switch (keycode) {
         case KC_CCCV:  // One key copy/paste
             if (record->event.pressed) {
@@ -169,15 +187,49 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                 }
             }
             break;
+        case CUSTOM_SPACE:
+            if (record->event.pressed) {
+                customSpaceDown = true;
+                if (totalDown > 0) {
+                    tap_code(KC_SPC);
+                    customSpaceUsed = true;
+                } else {
+                    layer_on(NAV);
+                    customSpaceUsed = false;
+                }           
+            } else {
+                if (!customSpaceUsed) tap_code(KC_SPC);
+                customSpaceDown = false;
+                customSpaceUsed = false;
+                layer_off(NAV);
+            }
+            break; 
+        default:
+            if (customSpaceDown && record->event.pressed && !customSpaceUsed) {
+// #ifdef CONSOLE_ENABLE
+//     uprintf("KL: kc: 0x%04X, col: %u, row: %u, pressed: %b, time: %u, interrupt: %b, count: %u\n", keycode, record->event.key.col, record->event.key.row, record->event.pressed, record->event.time, record->tap.interrupted, record->tap.count);
+//     uprintf("IS_LAYER_ON %b  keyma 0x%04X 0x%04X\n", IS_LAYER_ON(NAV), keymaps[NAV][record->event.key.row][record->event.key.col]);
+// #endif  
+                // tap_code(KC_SPC);
+                customSpaceUsed = true;
+                if (IS_LAYER_ON(NAV) && keymap_key_to_keycode(NAV, record->event.key) == KC_TRNS) {
+                    print("aaaaa ");
+                    tap_code(KC_SPC);
+                }
+            }    
+            break;
     }
+    if (record->tap.count == 0) totalDown += record->event.pressed ? 1 : -1;
+#ifdef CONSOLE_ENABLE
+    uprintf("totalDown: %d\n", totalDown);
+#endif 
     return true;
 }
-
-
+  
 bool is_alt_tab_active = false;
 uint16_t alt_tab_timer = 0;
 
-LEADER_EXTERNS();
+// LEADER_EXTERNS();
 
 void matrix_scan_user(void) {
     if (is_alt_tab_active) {
@@ -187,53 +239,53 @@ void matrix_scan_user(void) {
         }
     }
 
-    LEADER_DICTIONARY() {
-        leading = false;
-        leader_end();
+    // LEADER_DICTIONARY() {
+    //     leading = false;
+    //     leader_end();
 
-        SEQ_ONE_KEY(KC_C) { // Inline Code
-            SEND_STRING("`` " SS_TAP(X_LEFT) SS_TAP(X_LEFT));
-        }
-        SEQ_ONE_KEY(KC_P) { // Invoke Password Manager
-            SEND_STRING(SS_LCTRL(SS_LALT("\\")));
-        }
-        SEQ_ONE_KEY(KC_S) { // Windows screenshot
-            SEND_STRING(SS_LGUI("\nS"));
-        }
-        SEQ_TWO_KEYS(KC_F, KC_P) { // Fusion Projection prefix
-            SEND_STRING("[Projection] ");
-        }
-        SEQ_TWO_KEYS(KC_B, KC_B) { // Basecone invoice description
-            SEND_STRING("[Leveranciersnaam] [Factuurnummer]");
-        }
-        SEQ_TWO_KEYS(KC_E, KC_S) { // Support email splitkb
-            SEND_STRING("support@splitkb.com");
-        }
-        SEQ_TWO_KEYS(KC_E, KC_T) { // Email splitkb
-            SEND_STRING("thomas@splitkb.com");
-        }
-        SEQ_TWO_KEYS(KC_E, KC_P) { // Email personal
-            SEND_STRING("mail@thomasbaart.nl");
-        }
-        SEQ_TWO_KEYS(KC_S, KC_D) { // Splitkb documentation
-            SEND_STRING("https://docs.splitkb.com/");
-        }
-        SEQ_TWO_KEYS(KC_S, KC_V) { // Splitkb VAT number
-            SEND_STRING("NL210593349B01");
-        }
-        SEQ_TWO_KEYS(KC_B, KC_C) { // Discord bongocat
-            SEND_STRING(":bongocat:\n");
-        }
-        SEQ_TWO_KEYS(KC_C, KC_B) { // Discord code block
-            SEND_STRING("```c" SS_LSFT("\n\n") "``` " SS_TAP(X_UP));
-        }
-        SEQ_TWO_KEYS(KC_Y, KC_S) { // Greeting
-            SEND_STRING("Yours sincerely,\n\nThomas Baart");
-        }
-        SEQ_THREE_KEYS(KC_M, KC_V, KC_G) { // Greeting
-            SEND_STRING("Met vriendelijke groet,\n\nThomas Baart");
-        }
-    }
+    //     SEQ_ONE_KEY(KC_C) { // Inline Code
+    //         SEND_STRING("`` " SS_TAP(X_LEFT) SS_TAP(X_LEFT));
+    //     }
+    //     SEQ_ONE_KEY(KC_P) { // Invoke Password Manager
+    //         SEND_STRING(SS_LCTRL(SS_LALT("\\")));
+    //     }
+    //     SEQ_ONE_KEY(KC_S) { // Windows screenshot
+    //         SEND_STRING(SS_LGUI("\nS"));
+    //     }
+    //     SEQ_TWO_KEYS(KC_F, KC_P) { // Fusion Projection prefix
+    //         SEND_STRING("[Projection] ");
+    //     }
+    //     SEQ_TWO_KEYS(KC_B, KC_B) { // Basecone invoice description
+    //         SEND_STRING("[Leveranciersnaam] [Factuurnummer]");
+    //     }
+    //     SEQ_TWO_KEYS(KC_E, KC_S) { // Support email splitkb
+    //         SEND_STRING("support@splitkb.com");
+    //     }
+    //     SEQ_TWO_KEYS(KC_E, KC_T) { // Email splitkb
+    //         SEND_STRING("thomas@splitkb.com");
+    //     }
+    //     SEQ_TWO_KEYS(KC_E, KC_P) { // Email personal
+    //         SEND_STRING("mail@thomasbaart.nl");
+    //     }
+    //     SEQ_TWO_KEYS(KC_S, KC_D) { // Splitkb documentation
+    //         SEND_STRING("https://docs.splitkb.com/");
+    //     }
+    //     SEQ_TWO_KEYS(KC_S, KC_V) { // Splitkb VAT number
+    //         SEND_STRING("NL210593349B01");
+    //     }
+    //     SEQ_TWO_KEYS(KC_B, KC_C) { // Discord bongocat
+    //         SEND_STRING(":bongocat:\n");
+    //     }
+    //     SEQ_TWO_KEYS(KC_C, KC_B) { // Discord code block
+    //         SEND_STRING("```c" SS_LSFT("\n\n") "``` " SS_TAP(X_UP));
+    //     }
+    //     SEQ_TWO_KEYS(KC_Y, KC_S) { // Greeting
+    //         SEND_STRING("Yours sincerely,\n\nThomas Baart");
+    //     }
+    //     SEQ_THREE_KEYS(KC_M, KC_V, KC_G) { // Greeting
+    //         SEND_STRING("Met vriendelijke groet,\n\nThomas Baart");
+    //     }
+    // }
 }
 
 #ifdef OLED_DRIVER_ENABLE
@@ -357,3 +409,81 @@ bool encoder_update_user(uint8_t index, bool clockwise) {
     return true;
 }
 #endif
+
+int rgbState = 0;
+
+void process_trackball_user(trackball_record_t *record) {
+    if (IS_LAYER_ON(ADJUST)) { 
+        if (record->type & TB_BUTTON && record->pressed) {
+            rgbState++;
+            if (rgbState >= 3) rgbState = 0;
+            record->type &= ~TB_BUTTON;
+        }
+        if (record->type & TB_MOVED) {
+            for (int i = record->x; i < 0; i++) {
+                switch (rgbState) {
+                    case 0: rgblight_increase_hue(); break;
+                    case 1: rgblight_increase_sat(); break;
+                    case 2: rgblight_increase_val(); break;
+                }
+            }
+            for (int i = record->x; i > 0; i--) {
+                switch (rgbState) {
+                    case 0: rgblight_decrease_hue(); break;
+                    case 1: rgblight_decrease_sat(); break;
+                    case 2: rgblight_decrease_val(); break;
+                }
+            }
+            record->type &= ~TB_MOVED;
+            record->x = 0;
+            record->y = 0;
+        }
+    }
+    if (IS_LAYER_ON(RAISE)) { 
+        if (record->type & TB_MOVED) {
+            for (int i = record->x; i < 0; i++) {
+                // rgblight_increase_hue();
+            }
+            for (int i = record->x; i > 0; i--) {
+                // rgblight_decrease_hue();
+            }
+            for (int i = record->y; i < 0; i++) {
+                tap_code(KC_VOLU);
+            }
+            for (int i = record->y; i > 0; i--) {
+                tap_code(KC_VOLD);
+            }
+            record->type &= ~TB_MOVED;
+            record->x = 0;
+            record->y = 0;
+        }
+    }
+    if (IS_LAYER_ON(LOWER)) { 
+        if (record->type & TB_MOVED) {
+            report_mouse_t currentReport = pointing_device_get_report();
+            for (int i = record->x; i < 0; i++) {
+                currentReport.h++;
+            }
+            for (int i = record->x; i > 0; i--) {
+                currentReport.h--;
+            }
+            for (int i = record->y; i < 0; i++) {
+                currentReport.v--;
+            }
+            for (int i = record->y; i > 0; i--) {
+                currentReport.v++;
+            }
+            record->type &= ~TB_MOVED;
+            record->x = 0;
+            record->y = 0;
+            pointing_device_set_report(currentReport);
+            pointing_device_send();
+        }
+    }
+    if (record->type & TB_MOVED) {
+        // if (go_fast) {
+            record->x *= 5;
+            record->y *= 5;
+        // }
+    }
+}

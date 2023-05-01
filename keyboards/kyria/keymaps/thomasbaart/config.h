@@ -22,9 +22,9 @@
 
 #ifdef RGBLIGHT_ENABLE
   #define RGBLIGHT_ANIMATIONS
-  #define RGBLIGHT_HUE_STEP 8
-  #define RGBLIGHT_SAT_STEP 8
-  #define RGBLIGHT_VAL_STEP 8
+  #define RGBLIGHT_HUE_STEP 1
+  #define RGBLIGHT_SAT_STEP 2
+  #define RGBLIGHT_VAL_STEP 2
   #define RGBLIGHT_SLEEP
 #endif
 
@@ -41,7 +41,14 @@
 
 // Allows to use either side as the master. Look at the documentation for info:
 // https://docs.qmk.fm/#/config_options?id=setting-handedness
-#define EE_HANDS
+// #define EE_HANDS
 
 // Allows media codes to properly register in macros and rotary encoder code
 #define TAP_CODE_DELAY 10
+
+#define MASTER_RIGHT
+
+#define TRACKBALL_ORIENTATION 2
+#define TRACKBALL_RGBLIGHT 1
+#define TRACKBALL_INTERVAL 10
+
