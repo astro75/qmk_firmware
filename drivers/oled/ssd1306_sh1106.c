@@ -159,7 +159,7 @@ static void InvertCharacter(uint8_t *cursor) {
             *cursor = ~(*cursor);
             cursor++;
         }
-        cursor += oled_rotation_width;
+        cursor += oled_rotation_width - OLED_FONT_WIDTH;
         end += oled_rotation_width;
     }
 }
