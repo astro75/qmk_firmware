@@ -30,7 +30,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
  *                        `----------------------------------'  `----------------------------------'
  */
     [QWERTY] = LAYOUT(
-      KC_ESC,  KC_Q,   KC_W,   KC_E,   KC_R,   KC_T,                                         KC_Y,    KC_U,    KC_I,    KC_O,    KC_P,    KC_PIPE,
+      KC_ESC,  KC_Q,   KC_W,   KC_E,   KC_R,   KC_T,                                         KC_Y,    KC_U,    KC_I,    KC_O,    KC_P,    KC_BSLS,
       KC_LSFT, KC_A,   KC_S,   KC_D,   KC_F,   KC_G,                                         KC_H,    KC_J,    KC_K,    KC_L,    KC_SCLN, KC_QUOT,
       KC_LCTL, KC_Z,   KC_X,   KC_C,   KC_V,   KC_B,   KC_CCCV,   XXXXXXX, KC_DEL, XXXXXXX,  KC_N,    KC_M,    KC_COMM, KC_DOT,  KC_SLSH, KC_MINS,
               KC_LGUI, KC_LALT, LT(LOWER, KC_BSPC), MT(MOD_LSFT, KC_SPC), MT(MOD_LALT, KC_ENT), KC_BSPC, LT(NAV, KC_SPC), MO(RAISE), KC_TAB, KC_RALT
@@ -177,79 +177,40 @@ oled_rotation_t oled_init_user(oled_rotation_t rotation) {
 	return OLED_ROTATION_180;
 }
 
-void print_key(int x, int y);
+void print_key(bool reverse, uint8_t x, uint8_t y, uint8_t cursorY, uint8_t cursorX);
 
 bool oled_task_user(void) {
+    void line(int a, int row, bool reverse) {
+        const uint8_t left = 30;
+        const uint8_t space = 7;
+        print_key(reverse, a, 2, row, left + 0);
+        print_key(reverse, a, 3, row, left + 12 + space);
+        print_key(reverse, a, 4, row, left + 24 + space);
+        print_key(reverse, a, 5, row, left + 36 + space);
+        print_key(reverse, a, 6, row, left + 48 + space);
+        print_key(reverse, a, 7, row, left + 60 + space + space);
+    }
+
     if (is_keyboard_left()) {
-        print_key(0, 7);
-        print_key(0, 6);
-        print_key(0, 5);
-        print_key(0, 4);
-        print_key(0, 3);
-        print_key(0, 2);
-
-        oled_advance_page(false);
-        oled_advance_page(false);
-
-        print_key(1, 7);
-        print_key(1, 6);
-        print_key(1, 5);
-        print_key(1, 4);
-        print_key(1, 3);
-        print_key(1, 2);
-
-        oled_advance_page(false);
-        oled_advance_page(false);
-
-        print_key(2, 7);
-        print_key(2, 6);
-        print_key(2, 5);
-        print_key(2, 4);
-        print_key(2, 3);
-        print_key(2, 2);
+        line(0, 0, true);
+        line(1, 1, true);
+        line(2, 2, true);
     } else {
-        print_key(4, 2);
-        print_key(4, 3);
-        print_key(4, 4);
-        print_key(4, 5);
-        print_key(4, 6);
-        print_key(4, 7);
-
-        oled_advance_page(false);
-        oled_advance_page(false);
-        
-        print_key(5, 2);
-        print_key(5, 3);
-        print_key(5, 4);
-        print_key(5, 5);
-        print_key(5, 6);
-        print_key(5, 7);
-
-        oled_advance_page(false);
-        oled_advance_page(false);
-
-        print_key(6, 2);
-        print_key(6, 3);
-        print_key(6, 4);
-        print_key(6, 5);
-        print_key(6, 6);
-        print_key(6, 7); 
-
-        oled_advance_page(false);
-        oled_advance_page(false);
+        line(4, 0, false);
+        line(5, 1, false);
+        line(6, 2, false);
     }
     return false;
 }
 
 char keyCodeToChar(uint16_t keyCode);
 
-void print_key(int x, int y) {
-
-    
+void print_key(bool reverse, uint8_t x, uint8_t y, uint8_t cursorY, uint8_t cursorX) {
     uint16_t keyCode = keycode_at_keymap_location(get_highest_layer(layer_state), x, y);
-    // uint16_t keyCode = keymaps[0][x][y];
     char keyChar = keyCodeToChar(keyCode);
-    oled_write_char(keyChar, false);
+    oled_set_cursor_raw(reverse ? 128 - 12 - cursorX : cursorX, cursorY * 2);
+    bool down = matrix_is_on(x, y);
+    oled_write_char(keyChar, down);
 }
 
 char keyCodeToChar(uint16_t keyCode) {
@@ -302,24 +263,30 @@ char keyCodeToChar(uint16_t keyCode) {
         case KC_BSPC: return 'b';
         case KC_INS: return 'i';
         case KC_HOME: return 'h';
-        case KC_PGUP: return 'p';
-        case KC_PGDN: return 'p';
+        case KC_PGUP: return 0x1E;
+        case KC_PGDN: return 0x1F;
         case KC_END: return 'e';
         case KC_PSCR: return 'p';
         case KC_PAUS: return 'p';
-        case KC_UP: return 'u';
-        case KC_DOWN: return 'd';
-        case KC_LEFT: return 'l';
-        case KC_RGHT: return 'r';
+        case KC_UP: return 0x18;
+        case KC_DOWN: return 0x19;
+        case KC_LEFT: return 0x1B;
+        case KC_RGHT: return 0x1A;
         case KC_PSLS: return '/';
-        case KC_LEFT_SHIFT: return 's';
-        case KC_RIGHT_SHIFT: return 's';
+        case KC_LEFT_SHIFT: return 0x1E;
+        case KC_RIGHT_SHIFT: return 0x1E;
         case KC_LEFT_CTRL: return 'c';
         case KC_RIGHT_CTRL: return 'c';
         case KC_LEFT_ALT: return 'a';
         case KC_RIGHT_ALT: return 'a';
         case KC_LEFT_GUI: return 'g';
         case KC_RIGHT_GUI: return 'g';
+        case RGB_SAI: return 's';
+        case RGB_SAD: return 's';
+        case RGB_HUI: return 'h';
+        case RGB_HUD: return 'h';
+        case RGB_VAI: return 'v';
+        case RGB_VAD: return 'v';
     }
     return ' ';
 }
