@@ -3,6 +3,8 @@
 #ifdef OLED_ENABLE
   #define OLED_DISPLAY_128X64
   #define SPLIT_LAYER_STATE_ENABLE
+  #define OLED_FONT_HEIGHT 16 
+  #define OLED_FONT_WIDTH 12
 #endif
 
 #ifdef RGBLIGHT_ENABLE
@@ -41,3 +43,11 @@
 #define TAP_CODE_DELAY 10
 
 #define OLED_TIMEOUT 600000 // 10 mins
+
+
+
+#define SPLIT_POINTING_ENABLE
+#define POINTING_DEVICE_RIGHT
+
+// #define POINTING_DEVICE_DEBUG
+
