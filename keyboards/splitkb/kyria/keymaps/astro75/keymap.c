@@ -146,6 +146,12 @@ layer_state_t layer_state_set_user(layer_state_t state) {
 
 extern LED_TYPE led[RGBLED_NUM];
 
+void housekeeping_task_user() {
+    if (!is_keyboard_left()) {
+        pimoroni_trackball_set_rgbw(led[0].r, led[0].g, led[0].b, 0);
+    }
+}
+
 int rgbState = 0;
 
 uint8_t pointing_device_handle_buttons(uint8_t buttons, bool pressed, pointing_device_buttons_t button) {
@@ -166,9 +172,6 @@ uint8_t pointing_device_handle_buttons(uint8_t buttons, bool pressed, pointing_d
 }
 
 report_mouse_t pointing_device_task_user(report_mouse_t mouse_report) {
-    if (!is_keyboard_left()) {
-        pimoroni_trackball_set_rgbw(led[0].r, led[0].g, led[0].b, 0);
-    }
     if (IS_LAYER_ON(ADJUST)) { 
         for (int i = mouse_report.x; i < 0; i++) {
             switch (rgbState) {
