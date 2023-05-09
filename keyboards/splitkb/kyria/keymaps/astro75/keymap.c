@@ -166,7 +166,9 @@ uint8_t pointing_device_handle_buttons(uint8_t buttons, bool pressed, pointing_d
 }
 
 report_mouse_t pointing_device_task_user(report_mouse_t mouse_report) {
-    pimoroni_trackball_set_rgbw(led[0].r, led[0].g, led[0].b, 0);
+    if (!is_keyboard_left()) {
+        pimoroni_trackball_set_rgbw(led[0].r, led[0].g, led[0].b, 0);
+    }
     if (IS_LAYER_ON(ADJUST)) { 
         for (int i = mouse_report.x; i < 0; i++) {
             switch (rgbState) {
@@ -262,8 +264,16 @@ char keyCodeToChar(uint16_t keyCode) {
     bool shift = get_mods() & MOD_MASK_SHIFT;
     switch (keyCode) {
         case KC_A ... KC_Z: return 'A' + (keyCode - KC_A);
-        case KC_0: return '0';
-        case KC_1 ... KC_9: return '1' + (keyCode - KC_1);
+        case KC_0: return shift ? ')' : '0';
+        case KC_1: return shift ? '!' : '1';
+        case KC_2: return shift ? '@' : '2';
+        case KC_3: return shift ? '#' : '3';
+        case KC_4: return shift ? '$' : '4';
+        case KC_5: return shift ? '%' : '5';
+        case KC_6: return shift ? '^' : '6';
+        case KC_7: return shift ? '&' : '7';
+        case KC_8: return shift ? '*' : '8';
+        case KC_9: return shift ? '(' : '9';
         case KC_F1 ... KC_F9: return '1' + (keyCode - KC_F1);
         case KC_F10: return '0';
         case KC_F11: return '1';
