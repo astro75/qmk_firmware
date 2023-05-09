@@ -137,14 +137,14 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 //     ),
 };
 
- extern LED_TYPE led[RGBLED_NUM];
-
 layer_state_t layer_state_set_user(layer_state_t state) {
     return update_tri_layer_state(state, LOWER, RAISE, ADJUST);
 }
 
 
 #ifdef POINTING_DEVICE_ENABLE
+
+extern LED_TYPE led[RGBLED_NUM];
 
 int rgbState = 0;
 
@@ -216,36 +216,6 @@ report_mouse_t pointing_device_task_user(report_mouse_t mouse_report) {
 
 #endif
 
-// bool process_record_user(uint16_t keycode, keyrecord_t *record) {
-//     switch (keycode) {
-//         case KC_CCCV:  // One key copy/paste
-//             if (record->event.pressed) {
-//                 copy_paste_timer = timer_read();
-//             } else {
-//                 if (timer_elapsed(copy_paste_timer) > TAPPING_TERM) {  // Hold, copy
-//                     tap_code16(LCTL(KC_C));
-//                 } else { // Tap, paste
-//                     tap_code16(LCTL(KC_V));
-//                 }
-//             }
-//             break;
-//     }
-//     return true;
-// }
-
-// bool is_alt_tab_active = false;
-// uint16_t alt_tab_timer = 0;
-
-// void matrix_scan_user(void) {
-//     if (is_alt_tab_active) {
-//         if (timer_elapsed(alt_tab_timer) > 1000) {
-//             unregister_code(KC_LALT);
-//             is_alt_tab_active = false;
-//         }
-//     }
-// }
-
-// #if false
 #ifdef OLED_ENABLE
 
 oled_rotation_t oled_init_user(oled_rotation_t rotation) {
