@@ -51,7 +51,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
  */
     [LOWER] = LAYOUT(
       _______, _______, _______, KC_VOLU, _______, _______,                                     KC_SLSH, KC_7,    KC_8,    KC_9, KC_MINS, _______,
-      _______, _______, KC_MPRV, KC_MPLY, KC_MNXT, _______,                                     KC_ASTR, KC_4,    KC_5,    KC_6, KC_COMM, KC_PLUS,
+      _______, _______, KC_MPRV, KC_MPLY, KC_MNXT, _______,                                     KC_ASTR, KC_4,    KC_5,    KC_6, KC_DOT, KC_PLUS,
       _______, _______, _______, KC_VOLD, KC_MUTE, _______, _______, _______, _______, _______, KC_0,    KC_1,    KC_2,    KC_3, KC_EQL,  _______,
                                  _______, _______, _______, _______, _______, _______, _______, _______, _______, _______
     ),
@@ -137,26 +137,101 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 //     ),
 };
 
+ extern LED_TYPE led[RGBLED_NUM];
+
 layer_state_t layer_state_set_user(layer_state_t state) {
     return update_tri_layer_state(state, LOWER, RAISE, ADJUST);
 }
 
-bool process_record_user(uint16_t keycode, keyrecord_t *record) {
-    switch (keycode) {
-        case KC_CCCV:  // One key copy/paste
-            if (record->event.pressed) {
-                copy_paste_timer = timer_read();
-            } else {
-                if (timer_elapsed(copy_paste_timer) > TAPPING_TERM) {  // Hold, copy
-                    tap_code16(LCTL(KC_C));
-                } else { // Tap, paste
-                    tap_code16(LCTL(KC_V));
-                }
-            }
-            break;
+
+#ifdef POINTING_DEVICE_ENABLE
+
+int rgbState = 0;
+
+uint8_t pointing_device_handle_buttons(uint8_t buttons, bool pressed, pointing_device_buttons_t button) {
+    if (IS_LAYER_ON(ADJUST)) { 
+        if (pressed) {
+            rgbState++;
+            if (rgbState >= 3) rgbState = 0;
+        }
+        return 0;
     }
-    return true;
+
+    if (pressed) {
+        buttons |= 1 << (button);
+    } else {
+        buttons &= ~(1 << (button));
+    }
+    return buttons;
 }
+
+report_mouse_t pointing_device_task_user(report_mouse_t mouse_report) {
+    pimoroni_trackball_set_rgbw(led[0].r, led[0].g, led[0].b, 0);
+    if (IS_LAYER_ON(ADJUST)) { 
+        for (int i = mouse_report.x; i < 0; i++) {
+            switch (rgbState) {
+                case 0: rgblight_increase_hue(); break;
+                case 1: rgblight_increase_sat(); break;
+                case 2: rgblight_increase_val(); break;
+            }
+        }
+        for (int i = mouse_report.x; i > 0; i--) {
+            switch (rgbState) {
+                case 0: rgblight_decrease_hue(); break;
+                case 1: rgblight_decrease_sat(); break;
+                case 2: rgblight_decrease_val(); break;
+            }
+        }
+        mouse_report.x = 0;
+        mouse_report.y = 0;
+    }
+    if (IS_LAYER_ON(RAISE)) { 
+        for (int i = mouse_report.x; i < 0; i++) {
+            // rgblight_increase_hue();
+        }
+        for (int i = mouse_report.x; i > 0; i--) {
+            // rgblight_decrease_hue();
+        }
+        for (int i = mouse_report.y; i < 0; i++) {
+            tap_code(KC_VOLU);
+        }
+        for (int i = mouse_report.y; i > 0; i--) {
+            tap_code(KC_VOLD);
+        }
+        mouse_report.x = 0;
+        mouse_report.y = 0;
+    }
+    if (IS_LAYER_ON(LOWER)) { 
+        mouse_report.h = -mouse_report.x;
+        mouse_report.v = mouse_report.y;
+        mouse_report.x = 0;
+        mouse_report.y = 0;
+    }
+    // if (go_fast) {
+        mouse_report.x *= 5;
+        mouse_report.y *= 5;
+    // }
+    return mouse_report;
+}
+
+#endif
+
+// bool process_record_user(uint16_t keycode, keyrecord_t *record) {
+//     switch (keycode) {
+//         case KC_CCCV:  // One key copy/paste
+//             if (record->event.pressed) {
+//                 copy_paste_timer = timer_read();
+//             } else {
+//                 if (timer_elapsed(copy_paste_timer) > TAPPING_TERM) {  // Hold, copy
+//                     tap_code16(LCTL(KC_C));
+//                 } else { // Tap, paste
+//                     tap_code16(LCTL(KC_V));
+//                 }
+//             }
+//             break;
+//     }
+//     return true;
+// }
 
 // bool is_alt_tab_active = false;
 // uint16_t alt_tab_timer = 0;
@@ -287,6 +362,13 @@ char keyCodeToChar(uint16_t keyCode) {
         case RGB_HUD: return 'h';
         case RGB_VAI: return 'v';
         case RGB_VAD: return 'v';
+
+        case KC_VOLU: return '+';
+        case KC_VOLD: return '-';
+        case KC_MNXT: return 0x1A;
+        case KC_MPRV: return 0x1B;
+        case KC_MPLY: return 0x10;
+        case KC_MUTE: return 0x0E;
     }
     return ' ';
 }
